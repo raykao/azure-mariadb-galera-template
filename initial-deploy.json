@@ -117,9 +117,7 @@
           "deploymentPrefix": {"value": "[parameters('deploymentPrefix')]"},
           "indexCount": {"value": "[copyIndex(1)]"},
           "subnetId": {"value": "[variables('subnetId')]"},
-          "nsgID": {"value": "[variables('nsgID')]"},
-          "ipAddressArray": {"value": "[reference(concat('networkInterfaceTemplate', copyIndex())).outputs.ipaddress.value]"}
-
+          "nsgID": {"value": "[variables('nsgID')]"}
         },
         "templateLink": {
           "uri": "https://gist.githubusercontent.com/raykao/528f10ad393f9cc4dcbe22335ab807c5/raw/db4ecb3f142f66d1fdcfb9a5f0cb950a890c8549/network-interfaces.arm.template.json",
