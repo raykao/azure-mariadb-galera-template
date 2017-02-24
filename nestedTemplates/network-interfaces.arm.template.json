@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2016-09-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "deploymentPrefix": {
+      "type": "string"
+    },
+    "indexCount": {
+      "type": "int"
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "nsgID": {
+      "type": "string"
+    },
+    "ipAddressArray": {
+      "type": "array",
+      "defaultValue": []
+    }
+  },
+  "variables": {
+    "interfaceName": "[concat(parameters('deploymentPrefix'), '-nic-', padLeft(parameters('indexCount'),3,'0'))]",
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+  {
+    "type": "Microsoft.Network/networkInterfaces",
+    "name": "[variables('interfaceName')]",
+    "apiVersion": "2016-09-01",
+    "location": "[variables('location')]",
+    "properties": {
+    "ipConfigurations": [
+      {
+      "name": "ipconfig1",
+      "properties": {
+        "subnet": {
+          "id": "[parameters('subnetId')]"
+        },
+        "privateIPAllocationMethod": "dynamic"
+      }
+      }
+    ],
+    "networkSecurityGroup": {
+      "id": "[parameters('nsgID')]"
+    }
+    }
+  }
+  ],
+  "outputs": {
+    "ipaddresses": {
+      "type" : "array",
+      "value": "[concat(parameters('ipAddressArray'), reference(resourceID('Microsoft.Network/networkInterfaces', variables('interfaceName'))).ipConfigurations[0].properties.privateIPAddress)]"
+    }
+  }
+}

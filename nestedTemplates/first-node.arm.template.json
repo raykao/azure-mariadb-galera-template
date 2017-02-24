@@ -1,0 +1,87 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2016-09-01/deploymentTemplate.json#",
+  "contentVersion": "",
+  "parameters": {
+  	"deploymentPrefix": {
+   		"type": "string",
+      "default": "[resourceGroup().name]",
+   		"metadata": {
+   			"description": "Deployment Prefix name.  Added to the beginning of each resource."
+   		}
+   	},
+  	"clusterSize": {
+   		"type": "int",
+    	"defaultValue": 3,
+    	"minValue": 3,
+    	"metadata": {
+      	"description": "Number of initial nodes to create in cluster.  Default created will be 3." 
+    	}
+   	}
+  },
+  "variables": {
+    "deploymentPrefix": "[concat(parameters('deploymentPrefix'), '-mariaDB')]",
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('virtualMachineName')]",
+      "apiVersion": "2016-09-01",
+      "location": "[parameters('location')]",
+      "properties": {
+        "osProfile": {
+          "computerName": "[parameters('virtualMachineName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                  "keyData": "[parameters('adminPublicKey')]"
+                }
+              ]
+            }
+          }
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('virtualMachineSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "16.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[parameters('virtualMachineName')]",
+            "createOption": "fromImage",
+            "vhd": {
+              "uri": "[concat(concat(reference(resourceId('mariadb-test', 'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2015-06-15').primaryEndpoints['blob'], 'vhds/'), parameters('virtualMachineName'), '20170210140203.vhd')]"
+            }
+          },
+          "dataDisks": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('mariadb-test', 'Microsoft.Storage/storageAccounts', parameters('diagnosticsStorageAccountName')), '2015-06-15').primaryEndpoints['blob']]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('diagnosticsStorageAccountName'))]"
+      ]
+    }
+  ]
+}

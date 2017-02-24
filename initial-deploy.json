@@ -1,0 +1,142 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2016-09-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+  	"deploymentPrefix": {
+   		"type": "string",
+   		"metadata": {
+   			"description": "Deployment Prefix name.  Added to the beginning of each resource."
+   		}
+   	},
+   	"storageAccountName": {
+   		"type": "string",
+   		"metadata": {
+   			"description": "The storage account that will be created where the VHDs will be saved."
+   		}
+   	},
+  	"clusterSize": {
+   		"type": "int",
+    	"minValue": 3,
+    	"metadata": {
+      	"description": "Number of initial nodes to create in cluster.  Default created will be 3." 
+    	}
+   	}
+  },
+  "variables": {
+    "storageAccountName": "[concat(parameters('deploymentPrefix'), 'vhdsa')]",
+    "location": "[resourceGroup().location]",
+    "vnetName": "[concat(parameters('deploymentPrefix'), '-vnet')]",
+    "subnetName": "default",
+    "addressSpace": "10.0.0",
+    "vnetPrefix": "[concat(variables('addressSpace'), '.0', '/16')]",
+    "subnetPrefix": "[concat(variables('addressSpace'), '.0', '/24')]",
+    "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+    "subnetId": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+    "nsgName": "[concat(resourceGroup().name, '-nsg')]",
+    "nsgID": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",
+    "ipAddressArray": []
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('vnetName')]",
+      "apiVersion": "2016-09-01",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('nsgName')]",
+      "apiVersion": "2016-09-01",
+      "location": "[variables('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "default-allow-ssh",
+            "properties": {
+              "priority": 1000,
+              "sourceAddressPrefix": "*",
+              "protocol": "TCP",
+              "destinationPortRange": "22",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "name": "networkInterfaceTemplate0",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "parameters": {
+          "deploymentPrefix": {"value": "[parameters('deploymentPrefix')]"},
+          "indexCount": {"value": 0},
+          "subnetId": {"value": "[variables('subnetId')]"},
+          "nsgID": {"value": "[variables('nsgID')]"}
+        },
+        "templateLink": {
+          "uri": "https://gist.githubusercontent.com/raykao/528f10ad393f9cc4dcbe22335ab807c5/raw/db4ecb3f142f66d1fdcfb9a5f0cb950a890c8549/network-interfaces.arm.template.json",
+          "contentVersion": "1.0.0.0"
+        }
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
+      ]
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "name": "[concat('networkInterfaceTemplate', copyIndex(1))]",
+      "type": "Microsoft.Resources/deployments", 
+      "copy": {  
+        "count": "[sub(parameters('clusterSize'), 1)]",
+        "name": "nicCopy"
+      },
+      "properties": {
+        "mode": "incremental",
+        "parameters": {
+          "deploymentPrefix": {"value": "[parameters('deploymentPrefix')]"},
+          "indexCount": {"value": "[copyIndex(1)]"},
+          "subnetId": {"value": "[variables('subnetId')]"},
+          "nsgID": {"value": "[variables('nsgID')]"},
+          "ipAddressArray": {"value": "[reference(concat('networkInterfaceTemplate', copyIndex())).outputs.ipaddresses.value]"}
+
+        },
+        "templateLink": {
+          "uri": "https://gist.githubusercontent.com/raykao/528f10ad393f9cc4dcbe22335ab807c5/raw/db4ecb3f142f66d1fdcfb9a5f0cb950a890c8549/network-interfaces.arm.template.json",
+          "contentVersion": "1.0.0.0"
+        }
+      },
+      "dependsOn": [
+        "[variables('vnetName')]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]",
+        "networkInterfaceTemplate0"
+      ]
+    }
+  ],
+  "outputs": {
+    "results": {
+      "type": "array",
+      "value": "[reference(concat('networkInterfaceTemplate', sub(parameters('clusterSize'), 1) ) ).outputs.ipaddresses.value]"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "fileUris": ["https://gist.githubusercontent.com/raykao/820d661e7822f38ec0e09ceea27f71fb/raw/c2ad9285030d2fb2e2ce33c30551b4f0673e00b6/install-mariadb.sh"],
+  "commandToExecute": "./install-mariadb.sh"
+}
