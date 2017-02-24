@@ -50,7 +50,7 @@
   "outputs": {
     "ipaddress": {
       "type" : "array",
-      "value": "[concat(parameters('ipAddressArray'), split(reference(resourceID('Microsoft.Network/networkInterfaces', variables('interfaceName'))).ipConfigurations[0].properties.privateIPAddress, ','))]"
+      "value": "[split(reference(resourceID('Microsoft.Network/networkInterfaces', variables('interfaceName'))).ipConfigurations[0].properties.privateIPAddress, ',')]"
     }
   }
 }
