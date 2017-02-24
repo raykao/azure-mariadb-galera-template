@@ -128,8 +128,7 @@
       },
       "dependsOn": [
         "[variables('vnetName')]",
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]",
-        "[concat('networkInterfaceTemplate', copyIndex())]"
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
       ]
     }
   ],
