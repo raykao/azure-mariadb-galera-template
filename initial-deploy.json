@@ -17,6 +17,22 @@
   	"clusterSize": {
    		"type": "int",
     	"minValue": 3,
+      "allowedValues": [
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        17,
+        19,
+        21,
+        23,
+        25,
+        27,
+        29
+      ],
     	"metadata": {
       	"description": "Number of initial nodes to create in cluster.  Default created will be 3." 
     	}
@@ -33,8 +49,7 @@
     "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
     "subnetId": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
     "nsgName": "[concat(resourceGroup().name, '-nsg')]",
-    "nsgID": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",
-    "ipAddressArray": []
+    "nsgID": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
   },
   "resources": [
     {
