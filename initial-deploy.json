@@ -118,7 +118,7 @@
           "indexCount": {"value": "[copyIndex(1)]"},
           "subnetId": {"value": "[variables('subnetId')]"},
           "nsgID": {"value": "[variables('nsgID')]"},
-          "ipAddressArray": {"value": "[reference(concat('networkInterfaceTemplate', copyIndex())).outputs.ipaddresses.value]"}
+          "ipAddressArray": {"value": "[reference(concat('networkInterfaceTemplate', copyIndex())).outputs.ipaddress.value]"}
 
         },
         "templateLink": {
