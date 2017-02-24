@@ -132,7 +132,7 @@
   ],
   "outputs": {
     "results": {
-      "type": "string",
+      "type": "array",
       "value": "[reference(concat('networkInterfaceTemplate', sub(parameters('clusterSize'), 1))).outputs.ipaddress.value]"
     }
   }
