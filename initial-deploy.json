@@ -120,7 +120,7 @@
           "nsgID": {"value": "[variables('nsgID')]"}
         },
         "templateLink": {
-          "uri": "https://gist.githubusercontent.com/raykao/528f10ad393f9cc4dcbe22335ab807c5/raw/db4ecb3f142f66d1fdcfb9a5f0cb950a890c8549/network-interfaces.arm.template.json",
+          "uri": "https://raw.githubusercontent.com/raykao/azure-mariadb-galera-template/master/nestedTemplates/network-interfaces.arm.template.json",
           "contentVersion": "1.0.0.0"
         }
       },
