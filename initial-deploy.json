@@ -117,7 +117,8 @@
           "deploymentPrefix": {"value": "[parameters('deploymentPrefix')]"},
           "indexCount": {"value": "[copyIndex(1)]"},
           "subnetId": {"value": "[variables('subnetId')]"},
-          "nsgID": {"value": "[variables('nsgID')]"}
+          "nsgID": {"value": "[variables('nsgID')]"},
+          "ipAddressArray": {"value": "[reference(concat('networkInterfaceTemplate', copyIndex())).outputs.ipaddress.value]"}
         },
         "templateLink": {
           "uri": "https://raw.githubusercontent.com/raykao/azure-mariadb-galera-template/master/nestedTemplates/network-interfaces.arm.template.json",
