@@ -48,9 +48,9 @@
   }
   ],
   "outputs": {
-    "ipaddresses": {
-      "type" : "array",
-      "value": "[concat(parameters('ipAddressArray'), reference(resourceID('Microsoft.Network/networkInterfaces', variables('interfaceName'))).ipConfigurations[0].properties.privateIPAddress)]"
+    "ipaddress": {
+      "type" : "string",
+      "value": "[reference(resourceID('Microsoft.Network/networkInterfaces', variables('interfaceName'))).ipConfigurations[0].properties.privateIPAddress]"
     }
   }
 }
